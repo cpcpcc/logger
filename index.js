@@ -42,8 +42,8 @@ function dev(opts) {
     console.log('  ' + chalk.gray('<--')
       + ' ' + chalk.bold('%s')
       + ' ' + chalk.gray('%s'),
-        this.method,
-        this.originalUrl);
+      this.method,
+      this.originalUrl);
 
     try {
       yield next;
@@ -76,7 +76,7 @@ function dev(opts) {
     res.once('finish', onfinish);
     res.once('close', onclose);
 
-    function done(event){
+    function done(event) {
       res.removeListener('finish', onfinish);
       res.removeListener('close', onclose);
       log(ctx, start, counter ? counter.length : length, null, event);
@@ -108,21 +108,40 @@ function log(ctx, start, len, err, event) {
     length = bytes(len);
   }
 
+  var user = ctx.state.user ? ctx.state.user.sub : undefined
+
   var upstream = err ? chalk.red('xxx')
     : event === 'close' ? chalk.yellow('-x-')
     : chalk.gray('-->')
 
-  console.log('  ' + upstream
-    + ' ' + chalk.bold('%s')
-    + ' ' + chalk.gray('%s')
-    + ' ' + chalk[color]('%s')
-    + ' ' + chalk.gray('%s')
-    + ' ' + chalk.gray('%s'),
+  if (!user) {
+    console.log('  ' + upstream
+      + ' ' + chalk.bold('%s')
+      + ' ' + chalk.gray('%s')
+      + ' ' + chalk[color]('%s')
+      + ' ' + chalk.gray('%s')
+      + ' ' + chalk.gray('%s'),
       ctx.method,
       ctx.originalUrl,
       status,
       time(start),
       length);
+  } else {
+    console.log('  ' + upstream
+      + ' ' + chalk.bold('%s')
+      + ' ' + chalk.yellow('%s')
+      + ' ' + chalk.gray('%s')
+      + ' ' + chalk[color]('%s')
+      + ' ' + chalk.gray('%s')
+      + ' ' + chalk.gray('%s'),
+      ctx.method,
+      user,
+      ctx.originalUrl,
+      status,
+      time(start),
+      length);
+  }
+
 }
 
 /**

@@ -43,10 +43,10 @@ function dev(opts) {
     console.log('  ' + chalk.gray('<--')
       + ' ' + chalk.bold('%s')
       + ' ' + chalk.gray('%s'),
-        ctx.method,
-        ctx.originalUrl);
+      ctx.method,
+      ctx.originalUrl);
 
-    return next().then(function() {
+    return next().then(function () {
 
       // calculate the length of a streaming response
       // by intercepting the stream with a counter.
@@ -70,13 +70,13 @@ function dev(opts) {
       res.once('finish', onfinish);
       res.once('close', onclose);
 
-      function done(event){
+      function done(event) {
         res.removeListener('finish', onfinish);
         res.removeListener('close', onclose);
         log(ctx, start, counter ? counter.length : length, null, event);
       }
 
-    }, function(err) {
+    }, function (err) {
       // log uncaught downstream errors
       log(ctx, start, null, err);
       throw err;
@@ -109,21 +109,39 @@ function log(ctx, start, len, err, event) {
     length = bytes(len);
   }
 
+  var user = ctx.state.user ? ctx.state.user.sub : undefined
+
   const upstream = err ? chalk.red('xxx')
     : event === 'close' ? chalk.yellow('-x-')
     : chalk.gray('-->')
 
-  console.log('  ' + upstream
-    + ' ' + chalk.bold('%s')
-    + ' ' + chalk.gray('%s')
-    + ' ' + chalk[color]('%s')
-    + ' ' + chalk.gray('%s')
-    + ' ' + chalk.gray('%s'),
+  if (!user) {
+    console.log('  ' + upstream
+      + ' ' + chalk.bold('%s')
+      + ' ' + chalk.gray('%s')
+      + ' ' + chalk[color]('%s')
+      + ' ' + chalk.gray('%s')
+      + ' ' + chalk.gray('%s'),
       ctx.method,
       ctx.originalUrl,
       status,
       time(start),
       length);
+  } else {
+    console.log('  ' + upstream
+      + ' ' + chalk.bold('%s')
+      + ' ' + chalk.yellow('%s')
+      + ' ' + chalk.gray('%s')
+      + ' ' + chalk[color]('%s')
+      + ' ' + chalk.gray('%s')
+      + ' ' + chalk.gray('%s'),
+      ctx.method,
+      user,
+      ctx.originalUrl,
+      status,
+      time(start),
+      length);
+  }
 }
 
 /**
